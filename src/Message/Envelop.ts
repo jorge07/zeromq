@@ -1,5 +1,5 @@
+import v4 from "uuid/v4";
 import {Identity} from "./Parts/Identity";
-import v4 = require("uuid/v4");
 
 export type Envelop<T> = {
     message: T,
@@ -7,7 +7,7 @@ export type Envelop<T> = {
 
 export default function envelop<T>(message: T): Envelop<T> {
     return {
+        message,
         uuid: v4(),
-        message: message
-    }
+    };
 }

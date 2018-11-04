@@ -1,11 +1,26 @@
 import {socket, Socket} from "zeromq";
 import Timeout = NodeJS.Timeout;
-import v4 from "uuid/v4";
 import {EventEmitter} from "events";
+import v4 from "uuid/v4";
+import Buffering from "../../Buffer";
 
 export const INTERVAL = 3000;
 
 export default class WorkerPool {
+
+    private static connect(address: string): Socket {
+
+        return WorkerPool.client().connect(address);
+    }
+
+    private static client(): Socket {
+        const cli: Socket = socket("dealer");
+
+        cli.identity = v4();
+
+        return cli;
+    }
+
     private pool: string[] = [];
     private readonly timer: Timeout;
     private readonly emitter: EventEmitter;
@@ -25,11 +40,17 @@ export default class WorkerPool {
     }
 
     public onPromote(action: (address: string) => any) {
-        this.emitter.on('promoted', action);
+        this.emitter.on("promoted", action);
     }
 
     public onDemote(action: (address: string) => any) {
-        this.emitter.on('demoted', action);
+        this.emitter.on("demoted", action);
+    }
+
+    public stop(): void {
+        clearInterval(this.timer);
+        this.insertCandidates = [];
+        this.pool = [];
     }
 
     private health(): void {
@@ -55,7 +76,7 @@ export default class WorkerPool {
 
         this.pool.push(address);
 
-        this.emitter.emit('promoted', address);
+        this.emitter.emit("promoted", address);
     }
 
     private demote(address: string): void {
@@ -72,57 +93,37 @@ export default class WorkerPool {
 
         delete this.pool[this.pool.indexOf(address)];
 
-        this.emitter.emit('demoted', address);
+        this.emitter.emit("demoted", address);
     }
 
     private async ping(address: string): Promise<boolean> {
         let socket: Socket = WorkerPool.connect(address);
         return new Promise<boolean>((resolve, reject) => {
-                socket.on('message', () => {
+                socket.on("message", () => {
                     resolve(true);
                     socket.disconnect(address);
                     socket.close();
                 });
 
-                socket.on('error', () => {
+                socket.on("error", () => {
                     reject(false);
                     socket.disconnect(address);
                     socket.close();
                 });
 
-                setTimeout(function() {
-                    reject();
-                }, 1000);
+                setTimeout(reject, 1000);
 
                 socket.send([
-                    '',
-                    Buffer.from(JSON.stringify({
-                        uuid: v4(),
+                    "",
+                    Buffering.from({
                         message: {
-                            path: 'ping'
-                        }
-                    }), 'utf8')
+                            path: "ping",
+                        },
+                        uuid: v4(),
+                    }),
                 ], 0);
             })
         ;
     }
 
-    private static connect(address: string): Socket {
-
-        return WorkerPool.client().connect(address);
-    }
-
-    private static client(): Socket {
-        const cli: Socket = socket('dealer');
-
-        cli.identity = v4();
-
-        return cli;
-    }
-
-    public stop(): void {
-        clearInterval(this.timer);
-        this.insertCandidates = [];
-        this.pool = [];
-    }
 }

@@ -6,4 +6,4 @@ export type Request = {
     body?: Body,
     headers?: Headers,
     path: Path,
-}
+};

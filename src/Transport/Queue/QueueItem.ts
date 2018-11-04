@@ -4,9 +4,11 @@ import {Response} from "../../Message/Response";
 
 export default class QueueItem {
 
+    public readonly promise: Promise<Envelop<Response>>;
+
     private resolve: any;
     private reject: any;
-    public readonly promise: Promise<Envelop<Response>>;
+
     constructor(
         public readonly message: Envelop<Request>,
         private attempts: number = 0,

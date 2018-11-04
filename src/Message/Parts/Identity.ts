@@ -1,3 +1,3 @@
-export type Identity = {
-    uuid: string
+export interface Identity {
+    uuid: string;
 }

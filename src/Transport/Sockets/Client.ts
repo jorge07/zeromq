@@ -1,9 +1,10 @@
 import { socket, Socket } from "zeromq";
-import {Response} from "../../Message/Response";
+import envelop, {Envelop} from "../../Message/Envelop";
 import {Request} from "../../Message/Request";
+import {Response} from "../../Message/Response";
+import Buffering from "../Buffer";
 import MessageQueue from "../Queue/MessageQueue";
 import WorkerPool from "./Pool/WorkerPool";
-import envelop, {Envelop} from "../../Message/Envelop";
 
 export default class  Client {
     private readonly socket: Socket;
@@ -12,15 +13,14 @@ export default class  Client {
 
     constructor(
         private readonly addresses: string[],
-        type: string = 'dealer', options = {}
+        type: string = "dealer", options = {},
     ) {
         this.socket = socket(type, options);
         this.socket.identity = `client:${type}:${process.pid}`;
         this.workersPool = new WorkerPool();
         this.queue = new MessageQueue();
-        this.queue.onTimeout((envelop: Envelop<Request>) => console.log('Fail attempt: ', envelop.uuid));
+        this.queue.onTimeout(this.send.bind(this));
     }
-
 
     public async request(request: Request): Promise<Response> {
         const requestEnvelop: Envelop<Request> = envelop<Request>(request);
@@ -32,10 +32,6 @@ export default class  Client {
         return promise.then((envelop: Envelop<Response>) => (envelop.message));
     }
 
-    private ack(uuid: string, response: Envelop<Response>): void {
-        this.queue.ack(uuid, response);
-    }
-
     public start(): Client {
         this.connect();
         this.receive();
@@ -43,41 +39,41 @@ export default class  Client {
         return this;
     }
 
+    public stop(): void {
+        this.socket.close();
+        this.workersPool.stop();
+    }
+
+    private ack(uuid: string, response: Envelop<Response>): void {
+        this.queue.ack(uuid, response);
+    }
+
     private connect(): void {
         if (this.addresses.length === 0) {
-            throw new Error('Provide at least one endpoint');
+            throw new Error("Provide at least one endpoint");
         }
 
         this.workersPool.populate(this.addresses);
 
         this.workersPool.onPromote((address: string) => {
-            this.socket.connect(address)
+            this.socket.connect(address);
         });
         this.workersPool.onDemote((address: string) => {
-            this.socket.disconnect(address)
+            this.socket.disconnect(address);
         });
     }
 
     private receive(): void {
-        this.socket.on('message', (id: Buffer, response: Buffer) => {
-            const envelop: Envelop<Response> = JSON.parse(response.toString());
+        this.socket.on("message", (id: Buffer, response: Buffer) => {
+            const envelop: Envelop<Response> = Buffering.toString(response);
             this.ack(envelop.uuid, envelop);
         });
     }
 
     private send(envelop: Envelop<Request>): void {
-
-        const buffer: Buffer = Buffer.from(JSON.stringify(envelop), 'utf8');
-
         this.socket.send([
-            '',
-            buffer
+            "",
+            Buffering.from(envelop),
         ]);
-
-    }
-
-    public stop(): void {
-        this.socket.close();
-        this.workersPool.stop();
     }
 }

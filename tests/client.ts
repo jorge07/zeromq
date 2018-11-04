@@ -1,16 +1,16 @@
-import Client from '../src/Transport/Sockets/Client'
-import {Response} from "../src/Message/Response";
+import Client from "../src/Transport/Sockets/Client";
 
-const cli : Client = new Client([
-    'tcp://127.0.0.1:3001',
-    'tcp://127.0.0.1:3000',
+const cli: Client = new Client([
+    "tcp://127.0.0.1:3001",
+    "tcp://127.0.0.1:3000",
 ]);
 
 cli.start();
 
-cli.request({
-    path: 'ping',
-    body: { wut: '????' },
-})
-    .then((res: Response) => console.log(res))
+cli
+    .request({
+        body: { wut: "????" },
+        path: "ping",
+    })
+    .then(console.log)
 ;
