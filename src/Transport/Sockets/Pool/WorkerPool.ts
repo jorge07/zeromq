@@ -25,9 +25,11 @@ export default class WorkerPool {
     private readonly timer: Timeout;
     private readonly emitter: EventEmitter;
     private insertCandidates: string[] = [];
+    private servers: string[] = [];
 
     constructor(pool: string[] = []) {
-        this.insertCandidates = pool;
+        this.insertCandidates.push(...pool);
+        this.servers.push(...pool);
         this.emitter = new EventEmitter();
         this.emitter.setMaxListeners(100);
         this.timer = setInterval(this.health.bind(this), INTERVAL);
@@ -36,6 +38,9 @@ export default class WorkerPool {
 
     public populate(addressList: string[]): void {
         this.insertCandidates = addressList;
+        this.servers = [];
+        this.servers.push(...addressList);
+
         this.health();
     }
 
@@ -62,26 +67,28 @@ export default class WorkerPool {
         try {
             await this.ping(address);
             this.promote(address);
-        } catch (e) {
+        } catch (error) {
             this.demote(address);
         }
     }
 
     private promote(address: string): void {
-        delete this.insertCandidates[this.insertCandidates.indexOf(address)];
+        this.insertCandidates.splice(this.insertCandidates.indexOf(address), 1);
 
-        if (this.pool.indexOf(address) >= 0) {
+        if (this.pool.indexOf(address) !== -1) { // Already in pool
             return;
         }
 
         this.pool.push(address);
-
         this.emitter.emit("promoted", address);
     }
 
     private demote(address: string): void {
         if (this.insertCandidates.indexOf(address) >= 0) {
-            delete this.insertCandidates[this.insertCandidates.indexOf(address)];
+            this.insertCandidates.splice(this.insertCandidates.indexOf(address), 1);
+        }
+
+        if (this.servers.indexOf(address) >= 0) {
             return;
         }
 
@@ -92,7 +99,6 @@ export default class WorkerPool {
         }
 
         delete this.pool[this.pool.indexOf(address)];
-
         this.emitter.emit("demoted", address);
     }
 
@@ -105,13 +111,13 @@ export default class WorkerPool {
                     socket.close();
                 });
 
-                socket.on("error", () => {
-                    reject(false);
+                socket.on("error", (err) => {
+                    reject(err);
                     socket.disconnect(address);
                     socket.close();
                 });
 
-                setTimeout(reject, 1000);
+                setTimeout(() => {reject("Timeout"); }, 2000);
 
                 socket.send([
                     "",

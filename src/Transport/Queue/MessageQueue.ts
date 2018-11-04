@@ -75,6 +75,7 @@ export default class MessageQueue {
         if (item.iteration() > MAX_ATTEMPTS) {
             this.remove(uuid);
             item.error(new MaxAttemptsError(uuid));
+            return;
         }
 
         if (this.timeoutAction) {
@@ -82,6 +83,7 @@ export default class MessageQueue {
         }
 
         this.nextAttempt(uuid);
+        this.timers[item.message.uuid] = setTimeout(() => this.emitter.emit("expired", item), this.ttl);
     }
 
     private remove(uuid: string): void {

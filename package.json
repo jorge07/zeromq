@@ -18,6 +18,9 @@
     "zeromq": "^5.1.0"
   },
   "scripts": {
+    "test:cli": "ts-node tests/client",
+    "test:worker": "ts-node tests/worker",
+    "test:worker2": "ts-node tests/worker2",
     "test": "jest",
     "lint": "tslint --project ."
   },

@@ -39,6 +39,10 @@ export default class  Client {
         return this;
     }
 
+    public routers(addresses: string[]): void {
+        this.workersPool.populate(addresses);
+    }
+
     public stop(): void {
         this.socket.close();
         this.workersPool.stop();
@@ -58,6 +62,7 @@ export default class  Client {
         this.workersPool.onPromote((address: string) => {
             this.socket.connect(address);
         });
+
         this.workersPool.onDemote((address: string) => {
             this.socket.disconnect(address);
         });
