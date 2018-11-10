@@ -65,7 +65,8 @@ test('should be able to send a `demote` event when a worker STOP responding to a
         pool.onDemote((address) => {
             expect(pool.aliveWorkers()).not.toContain(address);
             expect(pool.candidates()).toContain(address);
-            resolve()
+            resolve();
+            pool.stop();
         });
     });
 });
