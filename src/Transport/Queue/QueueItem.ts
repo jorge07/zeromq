@@ -39,4 +39,8 @@ export default class QueueItem {
     public iteration(): number {
         return this.attempts;
     }
+
+    public timeout(): number {
+        return this.message.timeout;
+    }
 }

@@ -3,6 +3,7 @@ import Timeout = NodeJS.Timeout;
 import {EventEmitter} from "events";
 import v4 from "uuid/v4";
 import Buffering from "../../Buffer";
+import envelop from "../../../Message/Envelop";
 
 export const INTERVAL = 3000;
 
@@ -21,19 +22,36 @@ export default class WorkerPool {
         return cli;
     }
 
-    private pool: string[] = [];
+    private connected: boolean = false;
+    private activeWorkers: string[] = [];
     private readonly timer: Timeout;
     private readonly emitter: EventEmitter;
     private insertCandidates: string[] = [];
     private servers: string[] = [];
 
-    constructor(pool: string[] = []) {
+    constructor(pool: string[] = [], pingInterval: number = INTERVAL) {
         this.insertCandidates.push(...pool);
         this.servers.push(...pool);
         this.emitter = new EventEmitter();
         this.emitter.setMaxListeners(100);
-        this.timer = setInterval(this.health.bind(this), INTERVAL);
+        this.timer = setInterval(this.health.bind(this), pingInterval);
         this.health();
+    }
+
+    public aliveWorkers(): string[] {
+        return this.activeWorkers;
+    }
+
+    public candidates(): string[] {
+        return this.insertCandidates;
+    }
+
+    public workers(): string[] {
+        return this.servers;
+    }
+
+    public isConnected(): boolean {
+        return this.connected;
     }
 
     public populate(addressList: string[]): void {
@@ -48,6 +66,14 @@ export default class WorkerPool {
         this.emitter.on("promoted", action);
     }
 
+    public onConnected(action: (address: string) => any) {
+        this.emitter.on("connected", action);
+    }
+
+    public onDisconnected(action: (address: string) => any) {
+        this.emitter.on("disconnected", action);
+    }
+
     public onDemote(action: (address: string) => any) {
         this.emitter.on("demoted", action);
     }
@@ -55,12 +81,12 @@ export default class WorkerPool {
     public stop(): void {
         clearInterval(this.timer);
         this.insertCandidates = [];
-        this.pool = [];
+        this.activeWorkers = [];
     }
 
     private health(): void {
         this.insertCandidates.forEach(this.evaluate.bind(this));
-        this.pool.forEach(this.evaluate.bind(this));
+        this.activeWorkers.forEach(this.evaluate.bind(this));
     }
 
     private async evaluate(address: string): Promise<void> {
@@ -75,12 +101,17 @@ export default class WorkerPool {
     private promote(address: string): void {
         this.insertCandidates.splice(this.insertCandidates.indexOf(address), 1);
 
-        if (this.pool.indexOf(address) !== -1) { // Already in pool
+        if (this.activeWorkers.indexOf(address) !== -1) { // Already in activeWorkers
             return;
         }
 
-        this.pool.push(address);
+        this.activeWorkers.push(address);
         this.emitter.emit("promoted", address);
+
+        if (!this.connected && this.activeWorkers.length > 0) {
+            this.connected = true;
+            this.emitter.emit("connected");
+        }
     }
 
     private demote(address: string): void {
@@ -88,18 +119,22 @@ export default class WorkerPool {
             this.insertCandidates.splice(this.insertCandidates.indexOf(address), 1);
         }
 
-        if (this.servers.indexOf(address) >= 0) {
+        if (this.servers.indexOf(address) === -1) {
             return;
         }
 
         this.insertCandidates.push(address);
 
-        if (this.pool.indexOf(address) < 0) {
+        if (this.activeWorkers.indexOf(address) === -1) {
             return;
         }
 
-        delete this.pool[this.pool.indexOf(address)];
+        delete this.activeWorkers[this.activeWorkers.indexOf(address)];
         this.emitter.emit("demoted", address);
+        if (this.connected && this.activeWorkers.length <= 0) {
+            this.connected = false;
+            this.emitter.emit("disconnected");
+        }
     }
 
     private async ping(address: string): Promise<boolean> {
@@ -117,16 +152,11 @@ export default class WorkerPool {
                     socket.close();
                 });
 
-                setTimeout(() => {reject("Timeout"); }, 2000);
+                setTimeout(() => {reject("Timeout"); }, INTERVAL / 2);
 
                 socket.send([
-                    "",
-                    Buffering.from({
-                        message: {
-                            path: "ping",
-                        },
-                        uuid: v4(),
-                    }),
+                    '',
+                    Buffering.from(envelop({ path: 'ping' }, INTERVAL / 2))
                 ], 0);
             })
         ;

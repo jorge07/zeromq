@@ -1,29 +1,37 @@
 import { socket, Socket } from "zeromq";
-import envelop, {Envelop} from "../../Message/Envelop";
+import envelop, {Envelop, TIMEOUT} from "../../Message/Envelop";
 import {Request} from "../../Message/Request";
 import {Response} from "../../Message/Response";
 import Buffering from "../Buffer";
-import MessageQueue from "../Queue/MessageQueue";
+import MessageQueue, {MAX_ATTEMPTS} from "../Queue/MessageQueue";
 import WorkerPool from "./Pool/WorkerPool";
+import ClientNotReady from "./Exception/ClientNotReady";
 
 export default class  Client {
+    private status: boolean = false;
     private readonly socket: Socket;
     private readonly queue: MessageQueue;
     private readonly workersPool: WorkerPool;
 
     constructor(
         private readonly addresses: string[],
-        type: string = "dealer", options = {},
+        private readonly type: string = "dealer", options = {},
+        private readonly retries: number = MAX_ATTEMPTS,
+        private readonly connectionTimeout: number = TIMEOUT,
     ) {
         this.socket = socket(type, options);
         this.socket.identity = `client:${type}:${process.pid}`;
         this.workersPool = new WorkerPool();
-        this.queue = new MessageQueue();
+        this.queue = new MessageQueue(retries);
         this.queue.onTimeout(this.send.bind(this));
     }
 
-    public async request(request: Request): Promise<Response> {
-        const requestEnvelop: Envelop<Request> = envelop<Request>(request);
+    public async request(request: Request, timeout?: number|null): Promise<Response> {
+        if (! this.status) {
+            throw new ClientNotReady();
+        }
+
+        const requestEnvelop: Envelop<Request> = envelop<Request>(request, timeout || this.connectionTimeout);
 
         const promise = this.queue.enqueue(requestEnvelop);
 
@@ -32,11 +40,21 @@ export default class  Client {
         return promise.then((envelop: Envelop<Response>) => (envelop.message));
     }
 
-    public start(): Client {
+    public start(): Promise<Client> {
         this.connect();
-        this.receive();
 
-        return this;
+        this.socket.monitor();
+        return new Promise<Client>((resolve, reject) => {
+            this.workersPool.onConnected(() => {
+                this.status = true;
+                this.receive();
+                resolve(this);
+            });
+            this.workersPool.onDisconnected(() => {
+                this.status = true;
+                reject(this)
+            });
+        });
     }
 
     public routers(addresses: string[]): void {

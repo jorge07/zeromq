@@ -3,10 +3,13 @@ import { Request } from "../../../src/Message/Request";
 import { Response } from "../../../src/Message/Response";
 import MessageQueue from "../../../src/Transport/Queue/MessageQueue";
 
-it("should be able to add an item to the queue", () => {
+test("should be able to add an item to the queue", () => {
     const queue: MessageQueue = new MessageQueue();
+    const promise: Promise<Envelop<Response>> =  queue.enqueue(envelop<Request>({ path: "test" }, 200));
 
-    const promise: Promise<Envelop<Response>> = queue.enqueue(envelop<Request>({ path: "test" }));
+    expect(queue.size()).toBe(1);
 
-    expect(promise).toBeInstanceOf(Promise);
+    const result = expect(promise).rejects.toBeInstanceOf(Error);
+
+    return result.then(() => expect(queue.size()).toBe(0));
 });

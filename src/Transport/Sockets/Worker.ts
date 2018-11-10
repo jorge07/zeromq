@@ -34,7 +34,7 @@ export default class Worker {
             "message",
             (client: Buffer, empty: Buffer, request: Buffer) => {
                 const requestEnvelop: Envelop<Request> = Buffering.toString(request);
-                let responseEnvelop: Envelop<Response> = { uuid: requestEnvelop.uuid, message: { code: 0 } };
+                let responseEnvelop: Envelop<Response> = { uuid: requestEnvelop.uuid, timeout: requestEnvelop.timeout, message: { code: 0 } };
 
                 switch (true) {
                     case requestEnvelop.message.path === "ping":

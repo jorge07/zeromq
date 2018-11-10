@@ -6,7 +6,6 @@ import {Envelop} from "../../Message/Envelop";
 import {Request} from "../../Message/Request";
 import {Response} from "../../Message/Response";
 
-export const ITEM_EXPIRATION = 2000;
 export const MAX_ATTEMPTS = 3;
 
 export default class MessageQueue {
@@ -21,7 +20,7 @@ export default class MessageQueue {
     private timeoutAction?: (message: Envelop<Request>, attempt: number) => void;
 
     constructor(
-        private readonly ttl: number = ITEM_EXPIRATION,
+        private readonly maxAttempts: number = MAX_ATTEMPTS
     ) {
         this.emitter = new EventEmitter();
         this.emitter.setMaxListeners(100);
@@ -46,7 +45,7 @@ export default class MessageQueue {
         const messageQueueItem = MessageQueue.from(message, attempt);
         this.messages[message.uuid] = messageQueueItem;
 
-        this.timers[message.uuid] = setTimeout(() => this.emitter.emit("expired", messageQueueItem), this.ttl);
+        this.timers[message.uuid] = setTimeout(() => this.emitter.emit("expired", messageQueueItem), messageQueueItem.timeout());
 
         return messageQueueItem.promise;
     }
@@ -65,14 +64,9 @@ export default class MessageQueue {
     }
 
     private onExpired(item: QueueItem): void {
-
         const uuid = item.message.uuid;
 
-        if (! item) {
-            return; // already processed
-        }
-
-        if (item.iteration() > MAX_ATTEMPTS) {
+        if (item.iteration() >= this.maxAttempts) {
             this.remove(uuid);
             item.error(new MaxAttemptsError(uuid));
             return;
@@ -83,7 +77,7 @@ export default class MessageQueue {
         }
 
         this.nextAttempt(uuid);
-        this.timers[item.message.uuid] = setTimeout(() => this.emitter.emit("expired", item), this.ttl);
+        this.timers[item.message.uuid] = setTimeout(() => this.emitter.emit("expired", item), item.timeout());
     }
 
     private remove(uuid: string): void {

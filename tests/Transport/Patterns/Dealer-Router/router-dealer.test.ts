@@ -6,7 +6,7 @@ const ADDRESS = "tcp://127.0.0.1:5555";
 const router = new Router(ADDRESS);
 const dealer = new Dealer([ADDRESS]);
 
-beforeEach(() => {
+beforeEach(async () => {
     router.start((request: Request) => {
         switch (request.path) {
             case "test":
@@ -21,7 +21,7 @@ beforeEach(() => {
         }
     });
 
-    dealer.start();
+    await dealer.start();
 });
 
 afterEach(() => {
