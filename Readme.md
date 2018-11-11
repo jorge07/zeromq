@@ -1,6 +1,8 @@
 Zeromq implementations in Typescript
 ===
 
+[![Build Status](https://travis-ci.org/jorge07/zeromq.svg?branch=master)](https://travis-ci.org/jorge07/zeromq)
+
 ## Features
 
 - Automatic workers health-check
