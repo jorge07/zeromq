@@ -1,5 +1,7 @@
 export default class MaxAttemptsError extends Error {
-    constructor(public readonly uuid: string) {
+    public readonly uuid: string;
+    constructor(uuid: string) {
         super(`Max attempts reached for request ${uuid}`);
+        this.uuid = uuid;
     }
 }

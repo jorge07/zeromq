@@ -1,6 +1,6 @@
-import {Body} from "./Parts/Body";
-import {Headers} from "./Parts/Headers";
-import {Path} from "./Parts/Path";
+import { Body } from "./Parts/Body";
+import { Headers } from "./Parts/Headers";
+import { Path } from "./Parts/Path";
 
 export type Request = {
     body?: Body,

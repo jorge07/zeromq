@@ -1,9 +1,83 @@
 {
     "defaultSeverity": "error",
-    "extends": [
-        "tslint:recommended"
-    ],
+    "extends": ["tslint:all"],
     "jsRules": {},
-    "rules": {},
+    "rules": {
+      // Core rules with custom configurations
+      "array-type": [true, "array"],
+      "no-console": [true, "debug", "error", "info", "log", "time", "timeEnd", "trace"],
+      "only-arrow-functions": [true, "allow-declarations", "allow-named-functions"],
+      "triple-equals": [true, "allow-null-check"],
+
+      // Core rules we plan on enabling
+      // See https://github.com/Microsoft/tslint-microsoft-contrib/issues/491
+      "ban-types": false,
+      "deprecation": false,
+      "eofline": false,
+      "jsdoc-format": false,
+      "member-access": false,
+      "no-any": false,
+      "no-boolean-literal-compare": false,
+      "no-inferrable-types": false,
+      "no-internal-module": false,
+      "no-namespace": false,
+      "no-non-null-assertion": false,
+      "no-unbound-method": false,
+      "no-unsafe-any": false,
+      "prefer-for-of": false,
+      "prefer-function-over-method": false,
+      "restrict-plus-operands": false,
+      "strict-boolean-expressions": false,
+      "strict-type-predicates": false,
+
+      // Core rules intentionally disabled
+      "arrow-return-shorthand": false,
+      "comment-format": false,
+      "completed-docs": false,
+      "cyclomatic-complexity": false,
+      "file-name-casing": false,
+      "interface-name": false,
+      "max-classes-per-file": false,
+      "max-file-line-count": false,
+      "member-ordering": false,
+      "newline-before-return": false,
+      "newline-per-chained-call": false,
+      "no-angle-bracket-type-assertion": false,
+      "no-magic-numbers": false,
+      "no-unnecessary-qualifier": false,
+      "no-unused-variable": false,
+      "no-use-before-declare": false,
+      "interface-over-type-literal": false,
+      "object-literal-shorthand": false,
+      "object-literal-sort-keys": false,
+      "ordered-imports": false,
+      "prefer-template": false,
+      "typedef": false,
+      "typedef-whitespace": false,
+
+      // tslint-microsoft-contrib rules enabled
+      "ban-comma-operator": true,
+      "binary-expression-operand-order": false,
+      "encoding": true,
+
+      "switch-final-break": true,
+      "type-literal-delimiter": false,
+      "use-default-type-parameter": false,
+
+      // tslint-microsoft-contrib rules disabled
+      "missing-jsdoc": false,
+      "no-duplicate-case": false,
+      "no-empty-interfaces": false,
+      "no-empty-line-after-opening-brace": false,
+      "no-multiline-string": false,
+      "no-relative-imports": false,
+      "no-stateless-class": false,
+      "no-unexternalized-strings": false,
+      "no-var-self": false,
+      "react-tsx-curly-spacing": false,
+      "valid-typeof": false,
+      "no-default-export": false,
+      "no-submodule-imports": false
+    },
     "rulesDirectory": []
 }

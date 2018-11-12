@@ -1,10 +1,10 @@
-import {EventEmitter} from "events";
+import { EventEmitter } from "events";
 import MaxAttemptsError from "./MaxAttemptsError";
 import QueueItem from "./QueueItem";
 import Timer = NodeJS.Timer;
-import {Envelop} from "../../Message/Envelop";
-import {Request} from "../../Message/Request";
-import {Response} from "../../Message/Response";
+import { Envelop } from "../../Message/Envelop";
+import { Request } from "../../Message/Request";
+import { Response } from "../../Message/Response";
 
 export const MAX_ATTEMPTS = 3;
 
@@ -14,23 +14,24 @@ export default class MessageQueue {
         return new QueueItem(request, attempt);
     }
 
-    private readonly messages: { [key: string]: QueueItem} = {};
-    private readonly timers: { [key: string]: Timer } = {};
     private readonly emitter: EventEmitter;
+    private readonly maxAttempts: number = MAX_ATTEMPTS;
+    private readonly messages: Map<string, QueueItem> = new Map<string, QueueItem>();
+    private readonly timers: Map<string, Timer> = new Map<string, Timer>();
     private timeoutAction?: (message: Envelop<Request>, attempt: number) => void;
 
     constructor(
-        private readonly maxAttempts: number = MAX_ATTEMPTS
+        maxAttempts: number = MAX_ATTEMPTS,
     ) {
+        this.maxAttempts = maxAttempts;
         this.emitter = new EventEmitter();
         this.emitter.setMaxListeners(100);
-
         this.emitter.on("expired", this.onExpired.bind(this));
     }
 
     public size(): number {
 
-        return Object.keys(this.messages).length;
+        return this.messages.size;
     }
 
     public onTimeout(action: (message: Envelop<Request>, attempt: number) => void): void {
@@ -38,25 +39,38 @@ export default class MessageQueue {
     }
 
     public nextAttempt(uuid: string): void {
-        this.messages[uuid].fail();
+        const queueItem = this.messages.get(uuid);
+
+        if (!queueItem) {
+            return;
+        }
+
+        queueItem.fail();
     }
 
-    public enqueue(message: Envelop<Request>, attempt: number = 0): Promise<Envelop<Response>> {
+    public async enqueue(message: Envelop<Request>, attempt: number = 0): Promise<Envelop<Response>> {
         const messageQueueItem = MessageQueue.from(message, attempt);
-        this.messages[message.uuid] = messageQueueItem;
+        this.messages.set(message.uuid, messageQueueItem);
 
-        this.timers[message.uuid] = setTimeout(() => this.emitter.emit("expired", messageQueueItem), messageQueueItem.timeout());
+        this.timers.set(message.uuid, setTimeout(
+            () => this.emitter.emit("expired", messageQueueItem),
+            messageQueueItem.timeout(),
+        ));
 
         return messageQueueItem.promise;
     }
 
     public ack(requestUuid: string, response: Envelop<Response>): void {
 
-        if (! this.messages.hasOwnProperty(requestUuid)) {
+        if (! this.messages.has(requestUuid)) {
             return;
         }
 
-        const item: QueueItem = this.messages[requestUuid];
+        const item: QueueItem | undefined = this.messages.get(requestUuid);
+
+        if (! item) {
+            return;
+        }
 
         item.ack(response);
 
@@ -77,15 +91,21 @@ export default class MessageQueue {
         }
 
         this.nextAttempt(uuid);
-        this.timers[item.message.uuid] = setTimeout(() => this.emitter.emit("expired", item), item.timeout());
+        this.timers.set(uuid, setTimeout(
+            () => this.emitter.emit("expired", item),
+            item.timeout(),
+        ));
     }
 
     private remove(uuid: string): void {
-        if (this.messages.hasOwnProperty(uuid)) {
-            clearTimeout(this.timers[uuid]);
-            delete this.timers[uuid];
-            delete this.messages[uuid];
+        if (!this.messages.has(uuid)) {
+
+            return;
         }
+
+        clearTimeout(<Timer> this.timers.get(uuid));
+        this.timers.delete(uuid);
+        this.messages.delete(uuid);
     }
 
 }

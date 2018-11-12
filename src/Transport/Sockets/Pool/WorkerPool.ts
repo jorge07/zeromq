@@ -1,6 +1,6 @@
-import {socket, Socket} from "zeromq";
+import { socket, Socket } from "zeromq";
 import Timeout = NodeJS.Timeout;
-import {EventEmitter} from "events";
+import { EventEmitter } from "events";
 import v4 from "uuid/v4";
 import Buffering from "../../Buffer";
 import envelop from "../../../Message/Envelop";
@@ -23,30 +23,32 @@ export default class WorkerPool {
     }
 
     private connected: boolean = false;
-    private activeWorkers: string[] = [];
+    private readonly activeWorkers: Set<string> = new Set<string>();
     private readonly timer: Timeout;
     private readonly emitter: EventEmitter;
-    private insertCandidates: string[] = [];
-    private servers: string[] = [];
+    private insertCandidates: Set<string> = new Set<string>();
+    private readonly servers: Set<string> = new Set<string>();
 
     constructor(pool: string[] = [], pingInterval: number = INTERVAL) {
-        this.insertCandidates.push(...pool);
-        this.servers.push(...pool);
+        pool.forEach((address) => {
+            this.insertCandidates.add(address);
+            this.servers.add(address);
+        });
         this.emitter = new EventEmitter();
         this.emitter.setMaxListeners(100);
         this.timer = setInterval(this.health.bind(this), pingInterval);
         this.health();
     }
 
-    public aliveWorkers(): string[] {
+    public aliveWorkers(): Set<string> {
         return this.activeWorkers;
     }
 
-    public candidates(): string[] {
+    public candidates(): Set<string> {
         return this.insertCandidates;
     }
 
-    public workers(): string[] {
+    public workers(): Set<string> {
         return this.servers;
     }
 
@@ -55,9 +57,8 @@ export default class WorkerPool {
     }
 
     public populate(addressList: string[]): void {
-        this.insertCandidates = addressList;
-        this.servers = [];
-        this.servers.push(...addressList);
+        this.insertCandidates = new Set<string>(addressList);
+        addressList.forEach((address) => this.servers.add(address));
 
         this.health();
     }
@@ -80,8 +81,8 @@ export default class WorkerPool {
 
     public stop(): void {
         clearInterval(this.timer);
-        this.insertCandidates = [];
-        this.activeWorkers = [];
+        this.insertCandidates.clear();
+        this.activeWorkers.clear();
     }
 
     private health(): void {
@@ -99,65 +100,68 @@ export default class WorkerPool {
     }
 
     private promote(address: string): void {
-        this.insertCandidates.splice(this.insertCandidates.indexOf(address), 1);
+        this.insertCandidates.delete(address);
 
-        if (this.activeWorkers.indexOf(address) !== -1) { // Already in activeWorkers
+        if (this.activeWorkers.has(address)) { // Already in activeWorkers
             return;
         }
 
-        this.activeWorkers.push(address);
+        this.activeWorkers.add(address);
         this.emitter.emit("promoted", address);
 
-        if (!this.connected && this.activeWorkers.length > 0) {
+        if (!this.connected && this.activeWorkers.size > 0) {
             this.connected = true;
             this.emitter.emit("connected");
         }
     }
 
     private demote(address: string): void {
-        if (this.insertCandidates.indexOf(address) >= 0) {
-            this.insertCandidates.splice(this.insertCandidates.indexOf(address), 1);
+        if (this.insertCandidates.has(address)) {
+            this.insertCandidates.delete(address);
         }
 
-        if (this.servers.indexOf(address) === -1) {
+        if (! this.servers.has(address)) {
             return;
         }
 
-        this.insertCandidates.push(address);
+        this.insertCandidates.add(address);
 
-        if (this.activeWorkers.indexOf(address) === -1) {
+        if (! this.activeWorkers.has(address)) {
             return;
         }
 
-        delete this.activeWorkers[this.activeWorkers.indexOf(address)];
+        this.activeWorkers.delete(address);
         this.emitter.emit("demoted", address);
-        if (this.connected && this.activeWorkers.length <= 0) {
+        if (this.connected && this.activeWorkers.size <= 0) {
             this.connected = false;
             this.emitter.emit("disconnected");
         }
     }
 
     private async ping(address: string): Promise<boolean> {
-        let socket: Socket = WorkerPool.connect(address);
+        const client: Socket = WorkerPool.connect(address);
         return new Promise<boolean>((resolve, reject) => {
-                socket.on("message", () => {
+                client.on("message", () => {
                     resolve(true);
-                    socket.disconnect(address);
-                    socket.close();
+                    client.disconnect(address);
+                    client.close();
                 });
 
-                socket.on("error", (err) => {
+                client.on("error", (err) => {
                     reject(err);
-                    socket.disconnect(address);
-                    socket.close();
+                    client.disconnect(address);
+                    client.close();
                 });
 
                 setTimeout(() => {reject("Timeout"); }, INTERVAL / 2);
 
-                socket.send([
-                    '',
-                    Buffering.from(envelop({ path: 'ping' }, INTERVAL / 2))
-                ], 0);
+                client.send(
+                    [
+                        "",
+                        Buffering.from(envelop({ path: "ping" }, INTERVAL / 2)),
+                    ],
+                    0,
+                );
             })
         ;
     }

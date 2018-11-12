@@ -1,4 +1,4 @@
-import {Request} from "../../../../src/Message/Request";
+import { Request } from "../../../../src/Message/Request";
 import Dealer from "../../../../src/Transport/Patterns/Dealer-Router/Dealer";
 import Router from "../../../../src/Transport/Patterns/Dealer-Router/Router";
 
@@ -29,6 +29,6 @@ afterEach(() => {
     dealer.stop();
 });
 
-it("Send a request and receive a response", () => {
-    return expect(dealer.request({path: "test"})).resolves.toEqual( {body: "oK", code: 0});
+it("Send a request and receive a response", async () => {
+    return expect(dealer.request({path: "test"})).resolves.toEqual({body: "oK", code: 0});
 });

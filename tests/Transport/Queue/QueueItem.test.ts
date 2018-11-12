@@ -1,5 +1,5 @@
 import envelop from "../../../src/Message/Envelop";
-import {Request} from "../../../src/Message/Request";
+import { Request } from "../../../src/Message/Request";
 import QueueItem from "../../../src/Transport/Queue/QueueItem";
 
 it("QueueItem getters", () => {

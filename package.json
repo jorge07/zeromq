@@ -10,7 +10,9 @@
     "@types/zeromq": "^4.6.1",
     "jest": "^23.6.0",
     "ts-jest": "^23.10.4",
-    "ts-lint": "^4.5.1",
+    "tslint": "^5.10.0",
+    "tslint-microsoft-contrib": "^5.2.1",
+    "tslint-sonarts": "^1.8.0",
     "typescript": "^3.1.6"
   },
   "dependencies": {

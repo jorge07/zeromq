@@ -1,5 +1,5 @@
 import v4 from "uuid/v4";
-import {Identity} from "./Parts/Identity";
+import { Identity } from "./Parts/Identity";
 
 export const TIMEOUT = 5000;
 

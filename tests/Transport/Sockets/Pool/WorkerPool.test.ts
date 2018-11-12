@@ -1,6 +1,6 @@
 import Router from "../../../../src/Transport/Patterns/Dealer-Router/Router";
 import WorkerPool from "../../../../src/Transport/Sockets/Pool/WorkerPool";
-import {TIMEOUT} from "../../../../src/Message/Envelop";
+import { TIMEOUT } from "../../../../src/Message/Envelop";
 
 const ADDRESS = "tcp://127.0.0.1:5555";
 const ADDRESS_1 = "tcp://127.0.0.1:5556";
@@ -18,12 +18,11 @@ const startRouter: (address: string) => Router = (address: string): Router => {
     return router;
 };
 
-
-test('should be able to send a `connected` event when a worker respond to ping', () => {
+test("should be able to send a `connected` event when a worker respond to ping", async () => {
     const router  = startRouter(ADDRESS);
 
     const pool: WorkerPool = new WorkerPool();
-    return new Promise((resolve, reject) => {
+    return new Promise<any>((resolve, reject) => {
 
         expect(pool.isConnected()).toBe(false);
         pool.populate([ADDRESS]);
@@ -36,25 +35,24 @@ test('should be able to send a `connected` event when a worker respond to ping',
     });
 });
 
-
-test('should be able to send a `promote` event when a worker respond to ping', () => {
+test("should be able to send a `promote` event when a worker respond to ping", async () => {
     const router  = startRouter(ADDRESS_1);
 
     const pool: WorkerPool = new WorkerPool();
-    return new Promise((resolve, reject) => {
+    return new Promise<any>((resolve, reject) => {
         pool.populate([ADDRESS_1]);
         pool.onPromote(resolve);
         pool.onDemote(reject);
     }).then(() => {
         router.stop();
-    });;
+    });
 });
 
-test('should be able to send a `demote` event when a worker STOP responding to a ping', () => {
+test("should be able to send a `demote` event when a worker STOP responding to a ping", async () => {
     const router  = startRouter(ADDRESS_2);
 
     const pool: WorkerPool = new WorkerPool([], 200);
-    return new Promise((resolve, reject) => {
+    return new Promise<any>((resolve, reject) => {
         pool.populate([ADDRESS_2]);
         pool.onPromote((address) => {
             expect(pool.workers()).toContain(address);

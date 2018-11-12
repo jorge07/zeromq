@@ -1,5 +1,5 @@
 import envelop from "../../src/Message/Envelop";
-import {Request} from "../../src/Message/Request";
+import { Request } from "../../src/Message/Request";
 import Buffer from "../../src/Transport/Buffer";
 
 it("should convert Object into buffer and buffer into string", () => {

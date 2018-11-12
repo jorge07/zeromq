@@ -3,7 +3,7 @@ import { Request } from "../../../src/Message/Request";
 import { Response } from "../../../src/Message/Response";
 import MessageQueue from "../../../src/Transport/Queue/MessageQueue";
 
-test("should be able to add an item to the queue", () => {
+test("should be able to add an item to the queue", async () => {
     const queue: MessageQueue = new MessageQueue();
     const promise: Promise<Envelop<Response>> =  queue.enqueue(envelop<Request>({ path: "test" }, 200));
 

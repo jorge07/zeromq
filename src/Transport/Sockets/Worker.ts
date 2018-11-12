@@ -1,40 +1,52 @@
-import {socket, Socket} from "zeromq";
-import {Envelop} from "../../Message/Envelop";
-import {Request} from "../../Message/Request";
-import {Response} from "../../Message/Response";
+import { socket, Socket } from "zeromq";
+import { Envelop } from "../../Message/Envelop";
+import { Request } from "../../Message/Request";
+import { Response } from "../../Message/Response";
 import Buffering from "../Buffer";
 
 export default class Worker {
 
-    private static pong(): Response {
+    protected static pong(): Response {
         return {
             body: "pong",
             code: 0,
         };
     }
 
-    private readonly socket: Socket;
+    protected readonly connection: Socket;
+    private readonly address: string;
 
-    constructor(private readonly address: string, type: string = "router", options = {}) {
-        this.socket = socket(type, options);
-        this.socket.identity = `worker:${type}:${process.pid}`;
+    constructor(
+        address: string,
+        type: string = "router",
+        options = {},
+    ) {
+        this.address = address;
+        this.connection = socket(type, options);
+        this.connection.identity = `worker:${type}:${process.pid}`;
     }
 
     public start(reducer: (request: Request) => Response): void {
-        this.socket.bindSync(this.address);
+        this.connection.bindSync(this.address);
         this.receive(reducer);
     }
 
     public stop(): void {
-        this.socket.close();
+        this.connection.close();
     }
 
-    private receive(reducer: (request: Request) => Response): void {
-        this.socket.on(
+    protected receive(reducer: (request: Request) => Response): void {
+        this.connection.on(
             "message",
             (client: Buffer, empty: Buffer, request: Buffer) => {
-                const requestEnvelop: Envelop<Request> = Buffering.toString(request);
-                let responseEnvelop: Envelop<Response> = { uuid: requestEnvelop.uuid, timeout: requestEnvelop.timeout, message: { code: 0 } };
+                const requestEnvelop: Envelop<Request> = Buffering.parse(request);
+                const responseEnvelop: Envelop<Response> = {
+                    uuid: requestEnvelop.uuid,
+                    timeout: requestEnvelop.timeout,
+                    message: {
+                        code: 0,
+                    },
+                };
 
                 switch (true) {
                     case requestEnvelop.message.path === "ping":
@@ -44,13 +56,13 @@ export default class Worker {
                         responseEnvelop.message = { ...responseEnvelop.message, ...reducer(requestEnvelop.message)};
                 }
 
-                this.send(client, responseEnvelop);
+                this.send(responseEnvelop, client);
             },
         );
     }
 
-    private send(client: Buffer, response: Envelop<Response>): void {
-        this.socket.send([
+    protected send(response: Envelop<Response>, client?: Buffer): void {
+        this.connection.send([
             client,
             "",
             Buffering.from(response),
