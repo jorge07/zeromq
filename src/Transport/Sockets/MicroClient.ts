@@ -13,6 +13,7 @@ interface ResolveReject {
 
 export default class MicroClient {
     private readonly addresses: Set<string> = new Set<string>();
+    private readonly timeout: number = TIMEOUT;
     private readonly connection: Socket;
     private readonly calls: Map<string, ResolveReject> = new Map<string, ResolveReject>();
 
@@ -24,11 +25,12 @@ export default class MicroClient {
     ) {
         addresses.forEach((address) => this.addresses.add(address));
         this.connection = socket(type, options);
+        this.timeout = timeout;
     }
 
     public async request(request: Request): Promise<Response> {
 
-        const envelopRequest: Envelop<Request> = envelop<Request>(request);
+        const envelopRequest: Envelop<Request> = envelop<Request>(request, this.timeout);
 
         try {
             const envelopResponse: Envelop<Response> = await this.send(envelopRequest);

@@ -1,34 +1,40 @@
-import { Request } from "../../../../src/Message/Request";
 import Req from "../../../../src/Transport/Patterns/Req-Rep/Req";
 import Rep from "../../../../src/Transport/Patterns/Req-Rep/Rep";
 
 const ADDRESS = "tcp://127.0.0.1:4444";
-const rep = new Rep(ADDRESS);
-const req = new Req([ADDRESS]);
+const ADDRESS_1 = "tcp://127.0.0.1:4445";
 
-beforeEach(async () => {
-    rep.start((request: Request) => {
-        switch (request.path) {
-            case "test":
-                return {
-                    body: "ok",
-                    code: 0,
-                };
-            default:
-                return {
-                    code: 1,
-                };
-        }
+const startRep: (address: string) => Rep = (address: string): Rep => {
+    const rep = new Rep(address);
+
+    rep.start(() => {
+        return {
+            code: 1,
+        };
     });
 
-    await req.start();
+    return rep;
+};
+
+it("Send a request and receive a response", async() => {
+    const req = new Req([ADDRESS]);
+    const rep =  startRep(ADDRESS);
+
+    return req
+        .start()
+        .then(async () => expect(
+            req
+                .request({path: "test"}))
+            .resolves
+            .toEqual({ code: 1 }))
+        .then(() => req.stop());
 });
 
-afterEach(() => {
-    rep.stop();
-    req.stop();
-});
+it("Send a request a timeout", async () => {
+    const req = new Req([ADDRESS_1], 200);
 
-it("Send a request and receive a response", async () => {
-    return expect(req.request({path: "test"})).resolves.toEqual({body: "ok", code: 0});
+    return expect(req.request({path: "timeout"}))
+        .rejects
+        .toEqual("timeout")
+        .then(() => req.stop());
 });
