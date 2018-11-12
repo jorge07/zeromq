@@ -14,4 +14,4 @@ cache:
 
 script:
 - yarn install
-- yarn test
+- yarn test --coverage
