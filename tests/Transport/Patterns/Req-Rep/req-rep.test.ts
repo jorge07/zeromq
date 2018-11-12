@@ -1,6 +1,6 @@
 import { Request } from "../../../../src/Message/Request";
-import Req from "../../../../src/Transport/Patterns/Req-Res/Req";
-import Rep from "../../../../src/Transport/Patterns/Req-Res/Rep";
+import Req from "../../../../src/Transport/Patterns/Req-Rep/Req";
+import Rep from "../../../../src/Transport/Patterns/Req-Rep/Rep";
 
 const ADDRESS = "tcp://127.0.0.1:4444";
 const rep = new Rep(ADDRESS);
