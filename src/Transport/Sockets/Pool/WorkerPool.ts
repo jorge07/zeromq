@@ -58,6 +58,7 @@ export default class WorkerPool {
 
     public populate(addressList: string[]): void {
         this.insertCandidates = new Set<string>(addressList);
+
         addressList.forEach((address) => this.servers.add(address));
 
         this.health();

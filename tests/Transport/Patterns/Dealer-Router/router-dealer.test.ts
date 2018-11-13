@@ -11,7 +11,7 @@ beforeEach(async () => {
         switch (request.path) {
             case "test":
                 return {
-                    body: "oK",
+                    body: "ok",
                     code: 0,
                 };
             default:
@@ -30,5 +30,5 @@ afterEach(() => {
 });
 
 it("Send a request and receive a response", async () => {
-    return expect(dealer.request({path: "test"})).resolves.toEqual({body: "oK", code: 0});
+    return expect(dealer.request({path: "test"})).resolves.toEqual({body: "ok", code: 0});
 });

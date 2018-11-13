@@ -3,29 +3,33 @@ Zeromq implementations in Typescript
 
 [![Build Status](https://travis-ci.org/jorge07/zeromq.svg?branch=master)](https://travis-ci.org/jorge07/zeromq)
 
+## Patterns
+
+- Dealer-Router (Brokerless Paranoid Pirate)
+- Req-Rep
+
 ## Features
 
 - Automatic workers health-check
 - Retry strategy
 - Load balancing
-- Basic communication protocol
-- `async`/`await` 
+- `async/await` 
 
 ## Protocol
 
 ```typescript
 export type Request = {
-    body?: any,
-    headers?: {} | null,
-    path: string,
-}
+    body?: Body,
+    headers?: Headers,
+    path: Path,
+};
 ```
 ```typescript
 export type Response = {
-    body?: any,
-    headers?: {} | null,
-    code: number,
-}
+    body?: Body,
+    code: Code,
+    header?: Headers,
+};
 ```
 
 ## Usage
@@ -33,14 +37,16 @@ export type Response = {
 Boot the server:
 
 ```typescript
-import Worker from 'src/Transport/Sockets/Worker';
-import {Request} from "src/Message/Response";
+import Worker from "src/Transport/Sockets/Worker";
 
-const server: Worker = new Worker('tcp://127.0.0.1:3000');
+const server: Worker = new Worker("tcp://127.0.0.1:3000");
 
-server.start((request: Request) => (
+server.start(() => (
     {
-        body: 'pong',
+        body: {
+            res: "ok",
+            worker: process.pid,
+        },
         code: 0,
     }
 ));
@@ -48,22 +54,29 @@ server.start((request: Request) => (
 
 Connect with the client:
 ```typescript
-import Client from 'src/Transport/Sockets/Client'
-import {Response} from "src/Message/Response";
-import {Request} from "src/Message/Request";
+import Client from "src/Transport/Sockets/Client";
 
-const cli : Client = new Client([
-    'tcp://127.0.0.1:3001',
+const cli: Client = new Client([
+    "tcp://127.0.0.1:3000",
+    "tcp://127.0.0.1:3001",
 ]);
 
-(async () => {
+void (async () => {
+    await cli.start();
+
     try {
-        const response: Response = await cli.send({ path: 'ping' });
+        const response: Response = await cli.request({
+            body: { wut: "????" },
+            path: "ping",
+        }, 100);
+
         console.log(response);
-    } catch (err) {
-      	console.log(err);
+
+    } catch (e) {
+        console.log(e.message);
     }
-})()
+})();
+
 ```
 
 Result:

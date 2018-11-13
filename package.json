@@ -9,6 +9,7 @@
     "@types/uuid": "^3.4.4",
     "@types/zeromq": "^4.6.1",
     "jest": "^23.6.0",
+    "jest-sonar-reporter": "^2.0.0",
     "ts-jest": "^23.10.4",
     "tslint": "^5.10.0",
     "tslint-microsoft-contrib": "^5.2.1",
@@ -27,6 +28,7 @@
     "lint": "tslint --project ."
   },
   "jest": {
-    "preset": "ts-jest"
+    "preset": "ts-jest",
+    "testResultsProcessor": "jest-sonar-reporter"
   }
 }

@@ -3,20 +3,23 @@ import { format } from "util";
 
 const cli: Client = new Client([
     "tcp://127.0.0.1:3000",
+    "tcp://127.0.0.1:3001",
 ]);
 
 void (async () => {
-    try {
-        await cli.start();
-        const response = await cli.request({
-            body: { wut: "????" },
-            path: "ping",
-        });
+    await cli.start();
 
-        format(response);
-    } catch (e) {
-        format(e.message);
-    } finally {
-        cli.stop();
-    }
+    const request = async () => {
+        try {
+            const response = await cli.request({ body: { wut: "????" }, path: "ping" }, 100);
+
+            process.stdout.write(format(response));
+
+        } catch (e) {
+            process.stdout.write(format(e.message));
+            process.stdout.write("Message LOST");
+        }
+    };
+
+    setInterval(request, 100);
 })();

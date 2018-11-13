@@ -7,16 +7,12 @@ const ADDRESS_1 = "tcp://127.0.0.1:4445";
 const startRep: (address: string) => Rep = (address: string): Rep => {
     const rep = new Rep(address);
 
-    rep.start(() => {
-        return {
-            code: 1,
-        };
-    });
+    rep.start(() => ({ code: 1 }));
 
     return rep;
 };
 
-it("Send a request and receive a response", async() => {
+it("Send a request and receive a response", async () => {
     const req = new Req([ADDRESS]);
     const rep =  startRep(ADDRESS);
 
@@ -27,7 +23,10 @@ it("Send a request and receive a response", async() => {
                 .request({path: "test"}))
             .resolves
             .toEqual({ code: 1 }))
-        .then(() => req.stop());
+        .then(() => {
+            req.stop();
+            rep.stop();
+        });
 });
 
 it("Send a request a timeout", async () => {
@@ -36,5 +35,7 @@ it("Send a request a timeout", async () => {
     return expect(req.request({path: "timeout"}))
         .rejects
         .toEqual("timeout")
-        .then(() => req.stop());
+        .then(() => {
+            req.stop();
+        });
 });

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testExecutions version="1">
+  <file path="/Users/jorge/work/node/zeromq/tests/Transport/Queue/QueueItem.test.ts">
+    <testCase name="QueueItem getters" duration="7"/>
+  </file>
+  <file path="/Users/jorge/work/node/zeromq/tests/Transport/Buffer.test.ts">
+    <testCase name="should convert Object into buffer and buffer into string" duration="7"/>
+  </file>
+  <file path="/Users/jorge/work/node/zeromq/tests/Message/Envelop.test.ts">
+    <testCase name="should decorate an object" duration="8"/>
+  </file>
+  <file path="/Users/jorge/work/node/zeromq/tests/Transport/Queue/MessageQueue.test.ts">
+    <testCase name="should be able to add an item to the queue" duration="814"/>
+  </file>
+  <file path="/Users/jorge/work/node/zeromq/tests/Transport/Patterns/Dealer-Router/router-dealer.test.ts">
+    <testCase name="Send a request and receive a response" duration="13"/>
+  </file>
+  <file path="/Users/jorge/work/node/zeromq/tests/Transport/Patterns/Req-Rep/req-rep.test.ts">
+    <testCase name="Send a request and receive a response" duration="31"/>
+    <testCase name="Send a request a timeout" duration="208"/>
+  </file>
+  <file path="/Users/jorge/work/node/zeromq/tests/Transport/Sockets/Pool/WorkerPool.test.ts">
+    <testCase name="should be able to send a `connected` event when a worker respond to ping" duration="11"/>
+    <testCase name="should be able to send a `promote` event when a worker respond to ping" duration="3"/>
+    <testCase name="should be able to send a `demote` event when a worker STOP responding to a ping" duration="1713"/>
+  </file>
+</testExecutions>
