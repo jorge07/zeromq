@@ -36,6 +36,8 @@ export type Response = {
 
 Boot the server:
 
+![delaer router](https://i.imgur.com/6BVi4YF.png)
+
 ```typescript
 import Worker from "src/Transport/Sockets/Worker";
 
