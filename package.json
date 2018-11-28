@@ -24,6 +24,9 @@
     "test:cli": "ts-node tests/client",
     "test:worker": "ts-node tests/worker",
     "test:worker2": "ts-node tests/worker2",
+    "test:pub": "ts-node tests/pub",
+    "test:pub2": "ts-node tests/pub2",
+    "test:sub": "ts-node tests/sub",
     "test": "jest --ci --verbose --forceExit --detectOpenHandles",
     "lint": "tslint --project ."
   },

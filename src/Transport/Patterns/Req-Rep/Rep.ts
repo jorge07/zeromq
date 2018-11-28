@@ -1,10 +1,10 @@
-import Worker from "../../Sockets/Worker";
+import Router from "../Dealer-Router/Router";
 import { Envelop } from "../../../Message/Envelop";
 import { Response } from "../../../Message/Response";
 import Buffering from "../../Buffer";
 import { Request } from "../../../Message/Request";
 
-export default class Rep extends Worker {
+export default class Rep extends Router {
     constructor(address: string, options: any = {}) {
         super(address, "rep", options);
     }
@@ -24,7 +24,7 @@ export default class Rep extends Worker {
 
                 switch (true) {
                     case requestEnvelop.message.path === "ping":
-                        responseEnvelop.message = { ...responseEnvelop.message, ...Worker.pong()};
+                        responseEnvelop.message = { ...responseEnvelop.message, ...Router.pong()};
                         break;
                     default:
                         responseEnvelop.message = { ...responseEnvelop.message, ...reducer(requestEnvelop.message)};
