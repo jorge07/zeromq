@@ -1,32 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testExecutions version="1">
-  <file path="/Users/jorge/work/node/zeromq/tests/Transport/Buffer.test.ts">
-    <testCase name="should convert Object into buffer and buffer into string" duration="7"/>
-  </file>
   <file path="/Users/jorge/work/node/zeromq/tests/Transport/Queue/QueueItem.test.ts">
     <testCase name="QueueItem getters" duration="8"/>
   </file>
-  <file path="/Users/jorge/work/node/zeromq/tests/Transport/Patterns/Dealer-Router/router-dealer.test.ts">
-    <testCase name="Send a request and receive a response" duration="29"/>
+  <file path="/Users/jorge/work/node/zeromq/tests/Transport/Buffer.test.ts">
+    <testCase name="should convert Object into buffer and buffer into string" duration="7"/>
   </file>
   <file path="/Users/jorge/work/node/zeromq/tests/Message/Envelop.test.ts">
-    <testCase name="should decorate an object" duration="3"/>
+    <testCase name="should decorate an object" duration="6"/>
+  </file>
+  <file path="/Users/jorge/work/node/zeromq/tests/Transport/Patterns/Dealer-Router/router-dealer.test.ts">
+    <testCase name="Send a request and receive a response" duration="45"/>
   </file>
   <file path="/Users/jorge/work/node/zeromq/tests/Transport/Queue/MessageQueue.test.ts">
-    <testCase name="should be able to add an item to the queue" duration="211"/>
+    <testCase name="should be able to add an item to the queue" duration="220"/>
   </file>
   <file path="/Users/jorge/work/node/zeromq/tests/Transport/Patterns/Req-Rep/req-rep.test.ts">
-    <testCase name="Send a request and receive a response" duration="32"/>
-    <testCase name="Send a request a timeout" duration="204"/>
-  </file>
-  <file path="/Users/jorge/work/node/zeromq/tests/Transport/Patterns/Pub-Sub/pub-sub.test.ts">
-    <testCase name="Subscriber should receive a message from the publisher" duration="9"/>
-    <testCase name="Subscriber should receive a message from the publishers" duration="209"/>
-    <testCase name="Must fire a timeout error when not enough messages" duration="505"/>
+    <testCase name="Send a request and receive a response" duration="65"/>
+    <testCase name="Send a request a timeout" duration="206"/>
   </file>
   <file path="/Users/jorge/work/node/zeromq/tests/Transport/Sockets/Pool/WorkerPool.test.ts">
-    <testCase name="should be able to send a `connected` event when a worker respond to ping" duration="22"/>
-    <testCase name="should be able to send a `promote` event when a worker respond to ping" duration="5"/>
-    <testCase name="should be able to send a `demote` event when a worker STOP responding to a ping" duration="1709"/>
+    <testCase name="should be able to send a `connected` event when a worker respond to ping" duration="28"/>
+    <testCase name="should be able to send a `promote` event when a worker respond to ping" duration="4"/>
+    <testCase name="should be able to send a `demote` event when a worker STOP responding to a ping" duration="1713"/>
+  </file>
+  <file path="/Users/jorge/work/node/zeromq/tests/Transport/Patterns/Pub-Sub/pub-sub.test.ts">
+    <testCase name="Subscriber should receive a message from the publisher" duration="10"/>
+    <testCase name="Subscriber should receive a message from the publishers" duration="208"/>
+    <testCase name="Must fire a timeout error when not enough messages" duration="504"/>
   </file>
 </testExecutions>
