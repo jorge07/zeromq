@@ -35,7 +35,12 @@ it("Subscriber should receive a message from the publisher", async () => {
                 resolve(true);
             });
 
-        pub.publish({ path: "test", body: "demo" });
+        setTimeout(
+            () => {
+                pub.publish({ path: "test", body: "demo" });
+            },
+            200,
+        );
     });
 });
 
