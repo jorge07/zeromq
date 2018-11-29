@@ -5,7 +5,7 @@ import MessageQueue from "../../../src/Transport/Queue/MessageQueue";
 
 test("should be able to add an item to the queue", async () => {
     const queue: MessageQueue = new MessageQueue();
-    const promise: Promise<Envelop<Response>> =  queue.enqueue(envelop<Request>({ path: "test" }, 200));
+    const promise: Promise<Envelop<Response>> =  queue.enqueue(envelop<Request>({ path: "test" }, 50));
 
     expect(queue.size()).toBe(1);
 

@@ -39,7 +39,7 @@ Boot the server:
 ![delaer router](https://i.imgur.com/6BVi4YF.png)
 
 ```typescript
-import Worker from "src/Transport/Sockets/Worker";
+import Worker from "src/Transport/Sockets/Router";
 
 const server: Worker = new Worker("tcp://127.0.0.1:3000");
 
@@ -56,7 +56,7 @@ server.start(() => (
 
 Connect with the client:
 ```typescript
-import Client from "src/Transport/Sockets/Client";
+import Client from "src/Transport/Sockets/Dealer";
 
 const cli: Client = new Client([
     "tcp://127.0.0.1:3000",

@@ -1,6 +1,6 @@
-import Worker from "../src/Transport/Sockets/Worker";
+import Router from "../src/Transport/Patterns/Dealer-Router/Router";
 
-const server: Worker = new Worker("tcp://127.0.0.1:3001");
+const server: Router = new Router("tcp://127.0.0.1:3001");
 
 server.start(() => (
     {
