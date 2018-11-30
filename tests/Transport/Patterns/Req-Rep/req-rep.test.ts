@@ -1,8 +1,8 @@
 import Req from "../../../../src/Transport/Patterns/Req-Rep/Req";
 import Rep from "../../../../src/Transport/Patterns/Req-Rep/Rep";
 
-const ADDRESS = "tcp://127.0.0.1:4444";
-const ADDRESS_1 = "tcp://127.0.0.1:4445";
+const ADDRESS = "tcp://127.0.0.1:1212";
+const ADDRESS_1 = "tcp://127.0.0.1:1213";
 
 const startRep: (address: string) => Rep = (address: string): Rep => {
     const rep = new Rep(address);
