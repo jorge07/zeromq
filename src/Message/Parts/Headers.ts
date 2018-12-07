@@ -1,1 +1,1 @@
-export type Headers = {} | null;
+export type Headers = {} | any | null;
