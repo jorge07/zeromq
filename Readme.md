@@ -14,6 +14,7 @@ Zeromq implementations in Typescript
 - Retry strategy
 - Load balancing
 - `async/await` 
+- Tracing (Zipkin integration)
 
 ## Protocol
 
@@ -28,20 +29,42 @@ export type Request = {
 export type Response = {
     body?: Body,
     code: Code,
-    header?: Headers,
+    headers?: Headers,
 };
 ```
+
+## Dealer architecture
+
+![delaer router](https://i.imgur.com/6BVi4YF.png)
 
 ## Usage
 
 Boot the server:
 
-![delaer router](https://i.imgur.com/6BVi4YF.png)
-
 ```typescript
-import Worker from "src/Transport/Sockets/Router";
+import Router from "../src/Transport/Patterns/Dealer-Router/Router";
+import {BatchRecorder, Tracer} from "zipkin";
+import CLSContext from "zipkin-context-cls";
+import {HttpLogger} from "zipkin-transport-http";
+import * as zipkin from "zipkin";
+import JSON_V2 = zipkin.jsonEncoder.JSON_V2;
 
-const server: Worker = new Worker("tcp://127.0.0.1:3000");
+const server: Router = new Router(
+    "tcp://127.0.0.1:3000",
+    "router",
+    {},
+    new Tracer({
+        ctxImpl: new CLSContext('zipkin'),
+        recorder: new BatchRecorder({
+            logger: new HttpLogger({
+                endpoint: 'http://localhost:9411/api/v2/spans',
+                jsonEncoder: JSON_V2
+            })
+        }),
+        localServiceName: 'customWorker',
+    }),
+    'customServer'
+);
 
 server.start(() => (
     {
@@ -56,12 +79,33 @@ server.start(() => (
 
 Connect with the client:
 ```typescript
-import Client from "src/Transport/Sockets/Dealer";
+import Dealer from "../src/Transport/Patterns/Dealer-Router/Dealer";
+import {BatchRecorder, Tracer} from "zipkin";
+import {HttpLogger} from "zipkin-transport-http";
+import * as zipkin from "zipkin";
+import JSON_V2 = zipkin.jsonEncoder.JSON_V2;
+import CLSContext from "zipkin-context-cls"
+import {Response} from "../src/Message/Response";
 
-const cli: Client = new Client([
-    "tcp://127.0.0.1:3000",
-    "tcp://127.0.0.1:3001",
-]);
+const cli: Dealer = new Dealer(
+    [
+        "tcp://127.0.0.1:3000",
+        "tcp://127.0.0.1:3001",
+    ],
+    {},
+    3,
+    3000,
+    new Tracer({
+        ctxImpl: new CLSContext('zipkin'),
+        recorder: new BatchRecorder({
+            logger: new HttpLogger({
+                endpoint: 'http://localhost:9411/api/v2/spans',
+                jsonEncoder: JSON_V2
+            })
+        }),
+        localServiceName: 'client'
+    })
+);
 
 void (async () => {
     await cli.start();
@@ -82,9 +126,7 @@ void (async () => {
 ```
 
 Result:
-```bash
-$ ts-node tests/client
-{ uuid: 'f6d41b6a-d12b-4d4d-9fd1-835b4d2e8cf7',
-  code: 0,
-  body: 'pong' }
-```
+
+![tracing-dash](https://i.imgur.com/qIDymXH.png)
+![tracing-cli](https://i.imgur.com/DSQgWLi.png)
+![tracing-server](https://i.imgur.com/lnFJXQk.png)

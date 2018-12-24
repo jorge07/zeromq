@@ -81,8 +81,10 @@ export default class MicroClient {
 
         return new Promise<Envelop<Response>>((resolve, reject) => {
             const timer = setTimeout(() => {
-                reject("timeout");
-            },                       requestEnvelop.timeout);
+                    reject("timeout");
+                },
+                requestEnvelop.timeout
+            );
 
             this.calls.set(requestEnvelop.uuid, { resolve, reject, timer });
 

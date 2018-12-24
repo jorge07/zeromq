@@ -29,6 +29,6 @@ afterEach(() => {
     dealer.stop();
 });
 
-it("Send a request and receive a response", async () => {
+it("Send a clientRequest and receive a clientResponse", async () => {
     return expect(dealer.request({path: "test"})).resolves.toEqual({body: "ok", code: 0});
 });

@@ -5,5 +5,5 @@ import { Headers } from "./Parts/Headers";
 export type Response = {
     body?: Body,
     code: Code,
-    header?: Headers,
+    headers?: Headers,
 };

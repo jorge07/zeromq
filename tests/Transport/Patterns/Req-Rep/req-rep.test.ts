@@ -1,5 +1,6 @@
 import Req from "../../../../src/Transport/Patterns/Req-Rep/Req";
 import Rep from "../../../../src/Transport/Patterns/Req-Rep/Rep";
+import {Request} from "../../../../src/Message/Request";
 
 const ADDRESS = "tcp://127.0.0.1:1212";
 const ADDRESS_1 = "tcp://127.0.0.1:1213";
@@ -7,12 +8,24 @@ const ADDRESS_1 = "tcp://127.0.0.1:1213";
 const startRep: (address: string) => Rep = (address: string): Rep => {
     const rep = new Rep(address);
 
-    rep.start(() => ({ code: 1 }));
+    rep.start((request: Request) => {
+
+        switch (request.path) {
+            case 'ping':
+                return {
+                    code: 0
+                }
+        }
+
+        return {
+            code: 404
+        }
+    });
 
     return rep;
 };
 
-it("Send a request and receive a response", async () => {
+it("Send a clientRequest and receive a clientResponse", async () => {
     const req = new Req([ADDRESS]);
     const rep =  startRep(ADDRESS);
 
@@ -22,14 +35,14 @@ it("Send a request and receive a response", async () => {
             req
                 .request({path: "test"}))
             .resolves
-            .toEqual({ code: 1 }))
+            .toEqual({ code: 404 }))
         .then(() => {
             req.stop();
             rep.stop();
         });
 });
 
-it("Send a request a timeout", async () => {
+it("Send a clientRequest a timeout", async () => {
     const req = new Req([ADDRESS_1], 200);
 
     return expect(req.request({path: "timeout"}))

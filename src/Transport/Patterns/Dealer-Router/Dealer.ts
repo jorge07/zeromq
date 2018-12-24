@@ -6,6 +6,8 @@ import Buffering from "../../Buffer";
 import MessageQueue, { MAX_ATTEMPTS } from "../../Queue/MessageQueue";
 import WorkerPool from "../../Sockets/Pool/WorkerPool";
 import ClientNotReady from "../../Sockets/Exception/ClientNotReady";
+import {Tracer} from "zipkin";
+import TracingProxy, {TraceRequest} from "../../Tracing/TracingProxy";
 
 export default class  Dealer {
     private status: boolean = false;
@@ -13,26 +15,28 @@ export default class  Dealer {
     private readonly queue: MessageQueue;
     private readonly workersPool: WorkerPool;
     private readonly addresses: Set<string> = new Set<string>();
-    private readonly type: string = "dealer";
     private readonly retries: number = MAX_ATTEMPTS;
     private readonly connectionTimeout: number = TIMEOUT;
+    private readonly tracing: TracingProxy | undefined;
 
     constructor(
         addresses: string[],
-        type: string = "dealer",
         options: any = {},
         retries: number = MAX_ATTEMPTS,
         connectionTimeout: number = TIMEOUT,
+        tracer?: Tracer,
     ) {
         addresses.forEach((address: string) => this.addresses.add(address));
-        this.type = type;
         this.retries = retries;
         this.connectionTimeout = connectionTimeout;
-        this.socket = socket(type, options);
-        this.socket.identity = `client:${type}:${process.pid}`;
+        this.socket = socket("dealer", options);
+        this.socket.identity = `client:dealer:${process.pid}`;
         this.workersPool = new WorkerPool();
         this.queue = new MessageQueue(retries);
         this.queue.onTimeout(this.send.bind(this));
+        if (tracer) {
+            this.tracing = new TracingProxy(tracer, this.socket.identity, 'client');
+        }
     }
 
     public async request(request: Request, timeout?: number | null): Promise<Response> {
@@ -40,13 +44,19 @@ export default class  Dealer {
             throw new ClientNotReady();
         }
 
+        let trace: TraceRequest | undefined;
+
         const requestEnvelop: Envelop<Request> = envelop<Request>(request, timeout || this.connectionTimeout);
 
-        const promise = this.queue.enqueue(requestEnvelop);
+        if (this.tracing) {
+            trace = this.tracing.client(requestEnvelop);
+        }
+
+        const promise = this.queue.enqueue(requestEnvelop, 0, trace);
 
         this.send(requestEnvelop);
 
-        return promise.then((responseEnvelop: Envelop<Response>) => (responseEnvelop.message));
+        return promise.then((responseEnvelop: Envelop<Response>) => responseEnvelop.message);
     }
 
     public async start(): Promise<Dealer> {
