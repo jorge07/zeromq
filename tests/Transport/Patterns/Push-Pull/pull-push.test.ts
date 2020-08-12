@@ -1,5 +1,5 @@
-import Push from "../../../../src/Transport/Patterns/Push-Pull/Push";
-import Pull from "../../../../src/Transport/Patterns/Push-Pull/Pull";
+import { Push } from "../../../../src/Transport/Patterns/Push-Pull/Push";
+import { Pull } from "../../../../src/Transport/Patterns/Push-Pull/Pull";
 
 const PUB_ADDRESS_1 = "tcp://127.0.0.1:4433";
 const PUB_ADDRESS_4 = "tcp://127.0.0.1:2222";
@@ -32,7 +32,7 @@ it("Pull should receive a message from the pusher", async () => {
                 push.stop();
                 pull.stop();
 
-                resolve(true);
+                return resolve(true);
             });
 
         setTimeout(

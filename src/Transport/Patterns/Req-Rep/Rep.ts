@@ -1,10 +1,10 @@
-import Router from "../Dealer-Router/Router";
+import { Router } from "../Dealer-Router/Router";
 import { Envelop } from "../../../Message/Envelop";
 import { Response } from "../../../Message/Response";
-import Buffering from "../../Buffer";
+import * as Buffering from "../../Buffer";
 import { Request } from "../../../Message/Request";
 
-export default class Rep extends Router {
+export class Rep extends Router {
     constructor(address: string, options: any = {}) {
         super(address, "rep", options);
     }

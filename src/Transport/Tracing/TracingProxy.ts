@@ -1,22 +1,22 @@
-import ZeromqClientInstrumentation from "./ZeromqClientInstrumentation";
-import {Request} from "../../Message/Request";
-import {Response} from "../../Message/Response";
-import {TraceId} from "zipkin";
-import {Envelop} from "../../Message/Envelop";
+import { ZeromqClientInstrumentation } from "./ZeromqClientInstrumentation";
+import { Request } from "../../Message/Request";
+import { Response } from "../../Message/Response";
+import { TraceId } from "zipkin";
+import { Envelop } from "../../Message/Envelop";
 
 export type TraceRequest = {
     traceId: TraceId
-    ok: (response: Envelop<Response>) => void
-    local:  (name: string, action: () => any) => any
-    timeout: (attempt: number, response: Envelop<Request>) => void
-}
+    ok(response: Envelop<Response>): void;
+    local(name: string, action: () => any): any;
+    timeout(attempt: number, request: Envelop<Request>): void;
+};
 
 export type TraceServerRequest = {
-    ok: (response: Envelop<Response>) => void
-    local:  (name: string, action: () => any) => any
-}
+    ok(response: Envelop<Response>): void;
+    local(name: string, action: () => any): any;
+};
 
-export default class TracingProxy {
+export class TracingProxy {
     private readonly instrumentation: ZeromqClientInstrumentation;
 
     constructor(tracer: any, serviceName: string, remoteServiceName: string) {
@@ -30,12 +30,14 @@ export default class TracingProxy {
             traceId,
             ok: (response: Envelop<Response>) => this.instrumentation.clientResponse(traceId, response),
             local: (name: string, action: () => any) => this.instrumentation.local(traceId, name, action),
-            timeout: (attempt: number, request: Envelop<Request>) => this.instrumentation.timeout(traceId, attempt, request)
+            timeout: (attempt: number, currentRequest: Envelop<Request>) => {
+                this.instrumentation.timeout(traceId, attempt, currentRequest);
+            },
         };
     }
 
     public parse(traceId: TraceId, action: () => any): any {
-        return this.instrumentation.local(traceId, 'parse', action)
+        return this.instrumentation.local(traceId, "parse", action);
     }
 
     public server(request: Envelop<Request>): TraceServerRequest {
@@ -43,7 +45,7 @@ export default class TracingProxy {
 
         return {
             ok: (response: Envelop<Response>) => this.instrumentation.serverResponse(traceId, response),
-            local: (name: string, action: () => any) => this.instrumentation.local(traceId, name, action)
+            local: (name: string, action: () => any) => this.instrumentation.local(traceId, name, action),
         };
     }
 }

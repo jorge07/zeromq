@@ -1,6 +1,6 @@
 import { socket, Socket } from "zeromq";
 
-export default class Pull {
+export class Pull {
     private readonly connection: Socket;
     private addresses: string[] = [];
 

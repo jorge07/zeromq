@@ -1,15 +1,15 @@
 import { EventEmitter } from "events";
-import MaxAttemptsError from "./MaxAttemptsError";
-import QueueItem from "./QueueItem";
+import { MaxAttemptsError } from "./MaxAttemptsError";
+import { QueueItem } from "./QueueItem";
 import Timer = NodeJS.Timer;
 import { Envelop } from "../../Message/Envelop";
 import { Request } from "../../Message/Request";
 import { Response } from "../../Message/Response";
-import {TraceRequest} from "../Tracing/TracingProxy";
+import { TraceRequest } from "../Tracing/TracingProxy";
 
 export const MAX_ATTEMPTS = 3;
 
-export default class MessageQueue {
+export class MessageQueue {
 
     private readonly emitter: EventEmitter;
     private readonly maxAttempts: number = MAX_ATTEMPTS;
@@ -45,7 +45,11 @@ export default class MessageQueue {
         queueItem.fail();
     }
 
-    public async enqueue(message: Envelop<Request>, attempt: number = 0, tracing?: TraceRequest): Promise<Envelop<Response>> {
+    public async enqueue(
+        message: Envelop<Request>,
+        attempt: number = 0,
+        tracing?: TraceRequest,
+    ): Promise<Envelop<Response>> {
         const messageQueueItem = QueueItem.from(message, attempt, tracing);
         this.messages.set(message.uuid, messageQueueItem);
 

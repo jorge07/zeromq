@@ -1,9 +1,9 @@
 import { Envelop } from "../../Message/Envelop";
 import { Request } from "../../Message/Request";
 import { Response } from "../../Message/Response";
-import {TraceRequest} from "../Tracing/TracingProxy";
+import { TraceRequest } from "../Tracing/TracingProxy";
 
-export default class QueueItem {
+export class QueueItem {
 
     public static from(request: Envelop<Request>, attempt: number  = 0, tracing?: TraceRequest): QueueItem {
         return new QueueItem(request, attempt, tracing);
@@ -20,7 +20,7 @@ export default class QueueItem {
     constructor(
         message: Envelop<Request>,
         attempts: number = 0,
-        tracing?: TraceRequest
+        tracing?: TraceRequest,
     ) {
         this.attempts = attempts;
         this.message = message;

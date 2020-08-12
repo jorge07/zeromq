@@ -1,5 +1,5 @@
-import Router from "../../../../src/Transport/Patterns/Dealer-Router/Router";
-import WorkerPool from "../../../../src/Transport/Sockets/Pool/WorkerPool";
+import { Router } from "../../../../src/Transport/Patterns/Dealer-Router/Router";
+import { WorkerPool } from "../../../../src/Transport/Sockets/Pool/WorkerPool";
 import { TIMEOUT } from "../../../../src/Message/Envelop";
 
 const ADDRESS = "tcp://127.0.0.1:5555";

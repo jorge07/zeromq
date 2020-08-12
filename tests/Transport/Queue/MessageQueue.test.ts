@@ -1,7 +1,7 @@
-import envelop, { Envelop } from "../../../src/Message/Envelop";
+import { envelop, Envelop } from "../../../src/Message/Envelop";
 import { Request } from "../../../src/Message/Request";
 import { Response } from "../../../src/Message/Response";
-import MessageQueue from "../../../src/Transport/Queue/MessageQueue";
+import { MessageQueue } from "../../../src/Transport/Queue/MessageQueue";
 
 test("should be able to add an item to the queue", async () => {
     const queue: MessageQueue = new MessageQueue();

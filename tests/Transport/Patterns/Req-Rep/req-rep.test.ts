@@ -1,6 +1,6 @@
-import Req from "../../../../src/Transport/Patterns/Req-Rep/Req";
-import Rep from "../../../../src/Transport/Patterns/Req-Rep/Rep";
-import {Request} from "../../../../src/Message/Request";
+import { Req } from "../../../../src/Transport/Patterns/Req-Rep/Req";
+import { Rep } from "../../../../src/Transport/Patterns/Req-Rep/Rep";
+import { Request } from "../../../../src/Message/Request";
 
 const ADDRESS = "tcp://127.0.0.1:1212";
 const ADDRESS_1 = "tcp://127.0.0.1:1213";
@@ -11,14 +11,14 @@ const startRep: (address: string) => Rep = (address: string): Rep => {
     rep.start((request: Request) => {
 
         switch (request.path) {
-            case 'ping':
+            case "ping":
                 return {
-                    code: 0
-                }
-        }
-
-        return {
-            code: 404
+                    code: 0,
+                };
+            default:
+                return {
+                    code: 404,
+                };
         }
     });
 

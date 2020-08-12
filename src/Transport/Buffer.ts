@@ -12,13 +12,8 @@ export function parse<T>(buffer: Buffer): T {
     try {
         return JSON.parse(buffer.toString());
     } catch (e) {
+        // tslint:disable-next-line:no-console
       console.log("PARSE ERROR", buffer.toString());
       throw e;
     }
 }
-
-export default {
-    from,
-    fromObject,
-    parse,
-};

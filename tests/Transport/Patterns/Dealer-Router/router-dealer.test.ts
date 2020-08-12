@@ -1,6 +1,6 @@
 import { Request } from "../../../../src/Message/Request";
-import Dealer from "../../../../src/Transport/Patterns/Dealer-Router/Dealer";
-import Router from "../../../../src/Transport/Patterns/Dealer-Router/Router";
+import { Dealer } from "../../../../src/Transport/Patterns/Dealer-Router/Dealer";
+import { Router } from "../../../../src/Transport/Patterns/Dealer-Router/Router";
 
 const ADDRESS = "tcp://127.0.0.1:5544";
 const router = new Router(ADDRESS);

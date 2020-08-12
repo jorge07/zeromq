@@ -8,7 +8,7 @@ export type Envelop<T> = {
     message: T,
 } & Identity;
 
-export default function envelop<T>(message: T, timeout: number = TIMEOUT): Envelop<T> {
+export function envelop<T>(message: T, timeout: number = TIMEOUT): Envelop<T> {
     return {
         message,
         timeout,

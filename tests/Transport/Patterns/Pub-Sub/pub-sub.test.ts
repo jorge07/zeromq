@@ -1,5 +1,5 @@
-import Publisher from "../../../../src/Transport/Patterns/Pub-Sub/Publisher";
-import Subscriber from "../../../../src/Transport/Patterns/Pub-Sub/Subscriber";
+import { Publisher } from "../../../../src/Transport/Patterns/Pub-Sub/Publisher";
+import { Subscriber } from "../../../../src/Transport/Patterns/Pub-Sub/Subscriber";
 
 const PUB_ADDRESS_1 = "tcp://127.0.0.1:4444";
 const PUB_ADDRESS_2 = "tcp://127.0.0.1:5553";
@@ -32,7 +32,7 @@ it("Subscriber should receive a message from the publisher", async () => {
                 pub.stop();
                 sub.stop();
 
-                resolve(true);
+                return resolve(true);
             });
 
         setTimeout(

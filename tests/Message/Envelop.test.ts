@@ -1,4 +1,4 @@
-import envelop, { Envelop } from "../../src/Message/Envelop";
+import { envelop, Envelop } from "../../src/Message/Envelop";
 import { Request } from "../../src/Message/Request";
 import uuid from "uuid";
 

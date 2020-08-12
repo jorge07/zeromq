@@ -2,12 +2,12 @@ import { socket, Socket } from "zeromq";
 import Timeout = NodeJS.Timeout;
 import { EventEmitter } from "events";
 import v4 from "uuid/v4";
-import Buffering from "../../Buffer";
-import envelop from "../../../Message/Envelop";
+import * as Buffering from "../../Buffer";
+import { envelop } from "../../../Message/Envelop";
 
 export const INTERVAL = 3000;
 
-export default class WorkerPool {
+export class WorkerPool {
 
     private static connect(address: string): Socket {
 

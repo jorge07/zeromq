@@ -1,5 +1,5 @@
-import MicroClient from "../../Sockets/MicroClient";
+import { MicroClient } from "../../Sockets/MicroClient";
 
-export default class Req extends MicroClient {
+export class Req extends MicroClient {
 
 }

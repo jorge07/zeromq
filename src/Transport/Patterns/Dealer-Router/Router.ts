@@ -2,11 +2,11 @@ import { socket, Socket } from "zeromq";
 import { Envelop } from "../../../Message/Envelop";
 import { Request } from "../../../Message/Request";
 import { Response } from "../../../Message/Response";
-import Buffering from "../../Buffer";
-import TracingProxy, {TraceServerRequest} from "../../Tracing/TracingProxy";
-import {Tracer} from "zipkin";
+import * as Buffering from "../../Buffer";
+import { TracingProxy, TraceServerRequest } from "../../Tracing/TracingProxy";
+import { Tracer } from "zipkin";
 
-export default class Router {
+export class Router {
 
     protected static pong(): Response {
         return {
@@ -24,7 +24,7 @@ export default class Router {
         type: string = "router",
         options = {},
         tracer?: Tracer,
-        serviceName?: string
+        serviceName?: string,
     ) {
         this.address = address;
         this.connection = socket(type, options);
@@ -53,7 +53,7 @@ export default class Router {
                 const requestEnvelop: Envelop<Request> = Buffering.parse(request);
 
                 if (requestEnvelop.message.path !== "ping" && this.tracing) {
-                    trace = this.tracing.server(requestEnvelop)
+                    trace = this.tracing.server(requestEnvelop);
                 }
 
                 const responseEnvelop: Envelop<Response> = {
@@ -74,7 +74,11 @@ export default class Router {
                     }
                 };
 
-                (requestEnvelop.message.path !== "ping" && trace) ? trace.local(`action:${ requestEnvelop.message.path}`, action) : action();
+                if (requestEnvelop.message.path !== "ping" && trace) {
+                    trace.local(`action:${ requestEnvelop.message.path}`, action);
+                }  else {
+                    action();
+                }
 
                 this.send(responseEnvelop, client);
 
@@ -84,7 +88,6 @@ export default class Router {
             },
         );
     }
-
 
     protected send(response: Envelop<Response>, client?: Buffer): void {
         this.connection.send([

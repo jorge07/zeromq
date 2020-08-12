@@ -1,15 +1,15 @@
 import { socket, Socket } from "zeromq";
-import envelop, { Envelop, TIMEOUT } from "../../../Message/Envelop";
+import { envelop, Envelop, TIMEOUT } from "../../../Message/Envelop";
 import { Request } from "../../../Message/Request";
 import { Response } from "../../../Message/Response";
-import Buffering from "../../Buffer";
-import MessageQueue, { MAX_ATTEMPTS } from "../../Queue/MessageQueue";
-import WorkerPool from "../../Sockets/Pool/WorkerPool";
-import ClientNotReady from "../../Sockets/Exception/ClientNotReady";
-import {Tracer} from "zipkin";
-import TracingProxy, {TraceRequest} from "../../Tracing/TracingProxy";
+import * as Buffering from "../../Buffer";
+import { MessageQueue, MAX_ATTEMPTS } from "../../Queue/MessageQueue";
+import { WorkerPool } from "../../Sockets/Pool/WorkerPool";
+import { ClientNotReady } from "../../Sockets/Exception/ClientNotReady";
+import { Tracer } from "zipkin";
+import { TracingProxy, TraceRequest } from "../../Tracing/TracingProxy";
 
-export default class  Dealer {
+export class  Dealer {
     private status: boolean = false;
     private readonly socket: Socket;
     private readonly queue: MessageQueue;

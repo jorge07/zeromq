@@ -1,4 +1,4 @@
-import envelop, { Envelop, TIMEOUT } from "../../Message/Envelop";
+import { envelop,  Envelop, TIMEOUT } from "../../Message/Envelop";
 import { socket, Socket } from "zeromq";
 import { Request } from "../../Message/Request";
 import { from, parse } from "../Buffer";
@@ -11,7 +11,7 @@ interface ResolveReject {
     timer: Timer;
 }
 
-export default class MicroClient {
+export class MicroClient {
     private readonly addresses: Set<string> = new Set<string>();
     private readonly timeout: number = TIMEOUT;
     private readonly connection: Socket;
@@ -80,11 +80,7 @@ export default class MicroClient {
     private async send(requestEnvelop: Envelop<Request>): Promise<Envelop<Response>> {
 
         return new Promise<Envelop<Response>>((resolve, reject) => {
-            const timer = setTimeout(() => {
-                    reject("timeout");
-                },
-                requestEnvelop.timeout
-            );
+            const timer = setTimeout(() => { reject("timeout"); }, requestEnvelop.timeout);
 
             this.calls.set(requestEnvelop.uuid, { resolve, reject, timer });
 

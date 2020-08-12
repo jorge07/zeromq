@@ -1,7 +1,7 @@
 import { socket, Socket } from "zeromq";
 import { Request } from "../../../Message/Request";
 
-export default class Publisher {
+export class Publisher {
     private readonly connection: Socket;
     private readonly address: string;
 
