@@ -24,7 +24,7 @@ it("Subscriber should receive a message from the publisher", async () => {
         );
 
         sub
-            .attach("test", async (topic, msg) => {
+            .attach("test", (topic, msg) => {
                 expect(topic).toBe("test");
                 expect(msg).toEqual({ path: "test", body: "demo" });
                 clearTimeout(timer);
@@ -32,7 +32,7 @@ it("Subscriber should receive a message from the publisher", async () => {
                 pub.stop();
                 sub.stop();
 
-                return resolve(true);
+                resolve(true);
             });
 
         setTimeout(

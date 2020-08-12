@@ -25,14 +25,14 @@ it("Pull should receive a message from the pusher", async () => {
         );
 
         pull
-            .attach(async (msg) => {
+            .attach((msg) => {
                 expect(msg).toEqual({ path: "test", body: "demo" });
                 clearTimeout(timer);
 
                 push.stop();
                 pull.stop();
 
-                return resolve(true);
+                resolve(true);
             });
 
         setTimeout(
@@ -168,7 +168,7 @@ it("Pusher should round robin", async () => {
         };
 
         pull
-            .attach(async (msg) => {
+            .attach((msg) => {
                 expect(msg).toEqual({ path: "test", body: "demo" });
                 clearTimeout(timer);
 
@@ -176,7 +176,7 @@ it("Pusher should round robin", async () => {
             });
 
         pull2
-            .attach(async (msg) => {
+            .attach((msg) => {
                 expect(msg).toEqual({ path: "test", body: "demo" });
                 clearTimeout(timer);
 
@@ -184,7 +184,7 @@ it("Pusher should round robin", async () => {
             });
 
         pull3
-            .attach(async (msg) => {
+            .attach((msg) => {
                 expect(msg).toEqual({ path: "test", body: "demo" });
                 clearTimeout(timer);
 

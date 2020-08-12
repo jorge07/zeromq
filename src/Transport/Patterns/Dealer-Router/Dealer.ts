@@ -35,7 +35,7 @@ export class  Dealer {
         this.queue = new MessageQueue(retries);
         this.queue.onTimeout(this.send.bind(this));
         if (tracer) {
-            this.tracing = new TracingProxy(tracer, this.socket.identity, 'client');
+            this.tracing = new TracingProxy(tracer, this.socket.identity, "client");
         }
     }
 

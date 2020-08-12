@@ -129,7 +129,9 @@ export class ZeromqClientInstrumentation {
             this.tracer.letId(traceId, () => {
                 this.tracer.recordAnnotation(new zipkin.Annotation.ServerRecv());
                 Object.keys(requestEnvelop.message.headers || []).forEach(
-                    (value) => this.tracer.recordBinary(`zmq.headers:${value}`, requestEnvelop.message.headers[value]),
+                    (value: string): void => {
+                        this.tracer.recordBinary(`zmq.headers:${value}`, requestEnvelop.message.headers[value]);
+                    },
                 );
                 this.tracer.recordAnnotation(new zipkin.Annotation.ServiceName(this.serviceName));
                 this.tracer.recordRpc(`receive:${requestEnvelop.message.path.toLowerCase()}`);

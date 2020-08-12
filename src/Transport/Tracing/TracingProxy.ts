@@ -28,9 +28,13 @@ export class TracingProxy {
 
         return {
             traceId,
-            ok: (response: Envelop<Response>) => this.instrumentation.clientResponse(traceId, response),
-            local: (name: string, action: () => any) => this.instrumentation.local(traceId, name, action),
-            timeout: (attempt: number, currentRequest: Envelop<Request>) => {
+            ok: (response: Envelop<Response>): void => {
+                this.instrumentation.clientResponse(traceId, response);
+            },
+            local: (name: string, action: () => any): void => {
+                this.instrumentation.local(traceId, name, action);
+            },
+            timeout: (attempt: number, currentRequest: Envelop<Request>): void => {
                 this.instrumentation.timeout(traceId, attempt, currentRequest);
             },
         };
@@ -44,8 +48,12 @@ export class TracingProxy {
         const traceId: TraceId = this.instrumentation.serverRequest(request);
 
         return {
-            ok: (response: Envelop<Response>) => this.instrumentation.serverResponse(traceId, response),
-            local: (name: string, action: () => any) => this.instrumentation.local(traceId, name, action),
+            ok: (response: Envelop<Response>): void => {
+                this.instrumentation.serverResponse(traceId, response);
+            },
+            local: (name: string, action: () => any): void => {
+                this.instrumentation.local(traceId, name, action);
+            },
         };
     }
 }

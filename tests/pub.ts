@@ -1,11 +1,11 @@
-import Publisher from "../src/Transport/Patterns/Pub-Sub/Publisher";
+import { Publisher } from "../src/Transport/Patterns/Pub-Sub/Publisher";
 
 const pub: Publisher = new Publisher(
     "tcp://127.0.0.1:3000",
 );
 
-void (async () => {
-    const loop = () => {
+((): void => {
+    const loop = (): void => {
         pub.publish({
             path: "demo",
         });

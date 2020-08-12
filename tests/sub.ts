@@ -1,4 +1,4 @@
-import Subscriber from "../src/Transport/Patterns/Pub-Sub/Subscriber";
+import { Subscriber } from "../src/Transport/Patterns/Pub-Sub/Subscriber";
 import { format } from "util";
 
 const subs: Subscriber = new Subscriber([
