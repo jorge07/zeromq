@@ -13,7 +13,7 @@ export function parse<T>(buffer: Buffer): T {
         return JSON.parse(buffer.toString());
     } catch (e) {
         // tslint:disable-next-line:no-console
-      console.log("PARSE ERROR", buffer.toString());
+      console.error("PARSE ERROR", buffer.toString());
       throw e;
     }
 }
