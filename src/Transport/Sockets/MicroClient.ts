@@ -47,9 +47,12 @@ export class MicroClient {
 
         return new Promise<MicroClient>((resolve, reject) => {
 
-            const timer = setTimeout(() => {
-                reject("Cant connect with any of the addresses");
-            },                       TIMEOUT);
+            const timer = setTimeout(
+                () => {
+                    reject("Cant connect with any of the addresses");
+                },
+                TIMEOUT
+            );
 
             this.connection.on("connect", () => {
                 clearTimeout(timer);
