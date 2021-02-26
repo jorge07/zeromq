@@ -1,7 +1,7 @@
 import { socket, Socket } from "zeromq";
 import Timeout = NodeJS.Timeout;
 import { EventEmitter } from "events";
-import v4 from "uuid/v4";
+import { v4 } from "uuid";
 import * as Buffering from "../../Buffer";
 import { envelop } from "../../../Message/Envelop";
 
