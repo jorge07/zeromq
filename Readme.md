@@ -7,6 +7,8 @@ Zeromq implementations in Typescript
 
 - Dealer-Router (Brokerless Paranoid Pirate)
 - Req-Rep
+- Pub-Sub
+- Pull-Push
 
 ## Features
 
